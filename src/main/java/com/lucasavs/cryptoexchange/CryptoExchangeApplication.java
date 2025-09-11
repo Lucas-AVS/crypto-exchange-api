@@ -2,6 +2,7 @@ package com.lucasavs.cryptoexchange;
 
 import com.lucasavs.cryptoexchange.model.User;
 import com.lucasavs.cryptoexchange.repo.UserRepoI;
+import com.lucasavs.cryptoexchange.repo.UsersRepo;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,24 +20,22 @@ public class CryptoExchangeApplication {
     }
 
     @Bean
-    CommandLineRunner demo(UserRepoI repo) {
+    CommandLineRunner demo(UsersRepo repo) {
         return args -> {
 
-            User user = new User(
-                    UUID.randomUUID(),
-                    "kiryl@example.com",
-                    "adsfafsgsgadg1",
-                    Timestamp.from(Instant.now())
-            );
-            int rows = repo.save(user);
-            System.out.println("Inserted: " + rows);
+            User user = new User();
+            user.setEmail("springdatatest2@example.com");
+            user.setPasswordHash("testtesttest1234");
 
+            User saved = repo.save(user);
 
-            repo.findById(user.getId())
+            System.out.println("Inserted: " + saved);
+
+            repo.findById(saved.getId())
                     .ifPresent(u -> System.out.println("Found: " + u));
-
 
             repo.findAll().forEach(System.out::println);
         };
     }
+
 }
