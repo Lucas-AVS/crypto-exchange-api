@@ -1,16 +1,11 @@
 package com.lucasavs.cryptoexchange;
 
-import com.lucasavs.cryptoexchange.model.User;
-import com.lucasavs.cryptoexchange.repo.UserRepoI;
-import com.lucasavs.cryptoexchange.repo.UsersRepo;
+import com.lucasavs.cryptoexchange.entity.User;
+import com.lucasavs.cryptoexchange.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.UUID;
 
 @SpringBootApplication
 public class CryptoExchangeApplication {
@@ -20,11 +15,11 @@ public class CryptoExchangeApplication {
     }
 
     @Bean
-    CommandLineRunner demo(UsersRepo repo) {
+    CommandLineRunner demo(UserRepository repo) {
         return args -> {
 
             User user = new User();
-            user.setEmail("springdatatest2@example.com");
+            user.setEmail("sf4@example.com");
             user.setPasswordHash("testtesttest1234");
 
             User saved = repo.save(user);
