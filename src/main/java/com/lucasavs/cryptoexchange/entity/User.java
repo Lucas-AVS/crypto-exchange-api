@@ -1,4 +1,4 @@
-package com.lucasavs.cryptoexchange.model;
+package com.lucasavs.cryptoexchange.entity;
 
 import jakarta.persistence.*;
 import java.sql.Timestamp;
