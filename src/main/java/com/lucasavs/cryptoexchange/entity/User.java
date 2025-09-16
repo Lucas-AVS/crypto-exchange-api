@@ -6,6 +6,8 @@ import java.time.Instant;
 import java.util.UUID;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @Entity
 @Table(name = "users")
@@ -15,6 +17,8 @@ public class User {
     @GeneratedValue
     @org.hibernate.annotations.UuidGenerator
     @Column(name = "id", updatable = false, nullable = false)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private UUID id;
 
     @Column(name = "email", unique = true, nullable = false)
@@ -25,6 +29,8 @@ public class User {
 
     @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
     @Generated(GenerationTime.INSERT)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Instant createdAt;
 
     // === constructors ===
