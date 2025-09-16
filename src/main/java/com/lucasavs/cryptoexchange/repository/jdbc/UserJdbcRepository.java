@@ -53,6 +53,15 @@ public class UserJdbcRepository implements UserRepository {
         return template.query(sql, userRowMapper());
     }
 
+    @Override
+    public void deleteById(UUID theId) {
+        String sql = """
+            DELETE
+            FROM users
+            WHERE id = ?
+        """;
+    }
+
     private RowMapper<User> userRowMapper() {
         return (rs, rowNum) -> new User(
                 rs.getObject("id", UUID.class),
