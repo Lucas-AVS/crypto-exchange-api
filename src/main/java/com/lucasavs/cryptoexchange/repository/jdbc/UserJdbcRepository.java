@@ -21,18 +21,36 @@ public class UserJdbcRepository implements UserRepository {
 
     @Override
     public User save(User user) {
-        String sql = """
-            INSERT INTO users (email, password_hash)
-            VALUES (?, ?)
-            RETURNING id, email, password_hash, created_at
-        """;
-
-        return template.queryForObject(
-                sql,
-                userRowMapper(),
-                user.getEmail(),
-                user.getPasswordHash()
-        );
+        if (user.getId() == null) {
+            // INSERT
+            String sql = """
+                INSERT INTO users (email, password_hash)
+                VALUES (?, ?)
+                RETURNING id, email, password_hash, created_at
+            """;
+            return template.queryForObject(
+                    sql,
+                    userRowMapper(),
+                    user.getEmail(),
+                    user.getPasswordHash()
+            );
+        } else {
+            // UPDATE (keep values when null)
+            String sql = """
+                UPDATE users
+                SET email = COALESCE(?, email),
+                    password_hash = COALESCE(?, password_hash)
+                WHERE id = ?
+                RETURNING id, email, password_hash, created_at
+            """;
+            return template.queryForObject(
+                    sql,
+                    userRowMapper(),
+                    user.getEmail(),
+                    user.getPasswordHash(),
+                    user.getId()
+            );
+        }
     }
 
     @Override
@@ -60,6 +78,7 @@ public class UserJdbcRepository implements UserRepository {
             FROM users
             WHERE id = ?
         """;
+        template.update(sql, theId);
     }
 
     private RowMapper<User> userRowMapper() {
