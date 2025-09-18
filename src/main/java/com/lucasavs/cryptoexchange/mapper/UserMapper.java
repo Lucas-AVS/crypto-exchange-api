@@ -1,6 +1,8 @@
 package com.lucasavs.cryptoexchange.mapper;
 
+import com.lucasavs.cryptoexchange.dto.UserCreateDto;
 import com.lucasavs.cryptoexchange.dto.UserDto;
+import com.lucasavs.cryptoexchange.dto.UserUpdateDto;
 import com.lucasavs.cryptoexchange.entity.User;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +13,21 @@ public class UserMapper {
         UserDto dto = new UserDto();
         dto.setId(user.getId());
         dto.setEmail(user.getEmail());
+        return dto;
+    }
+
+    public UserCreateDto toCreatedDto(User user) {
+        UserCreateDto dto = new UserCreateDto();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setPassword(user.getPasswordHash());
+        return dto;
+    }
+
+    public UserUpdateDto toUpdateDto(User user) {
+        UserUpdateDto dto = new UserUpdateDto();
+        dto.setEmail(user.getEmail());
+        dto.setPassword(user.getPasswordHash());
         return dto;
     }
 
