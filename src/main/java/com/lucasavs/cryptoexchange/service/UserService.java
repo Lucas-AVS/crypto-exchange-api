@@ -1,9 +1,9 @@
 package com.lucasavs.cryptoexchange.service;
 
-import com.lucasavs.cryptoexchange.dto.UserCreateDto;
+import com.lucasavs.cryptoexchange.dto.UserCreateRequest;
 import com.lucasavs.cryptoexchange.dto.UserDto;
-import com.lucasavs.cryptoexchange.dto.UserUpdateDto;
-import com.lucasavs.cryptoexchange.entity.User;
+import com.lucasavs.cryptoexchange.dto.UserUpdateRequest;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -12,10 +12,9 @@ public interface UserService {
 
     UserDto findById(UUID theId);
 
-    UserCreateDto save(User theUser);
+    UserDto save(UserCreateRequest theUser);
 
-    UserUpdateDto update(UUID id, UserUpdateDto in);
+    UserDto update(UUID id, UserUpdateRequest in);
 
     void deleteById(UUID theId);
 }
-
