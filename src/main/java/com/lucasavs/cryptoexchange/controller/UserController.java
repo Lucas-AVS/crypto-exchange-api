@@ -18,66 +18,46 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
-    private final ObjectMapper objectMapper;
 
     @Autowired
-    public UserController(UserService userService, ObjectMapper objectMapper) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.objectMapper = objectMapper;
     }
 
-    // expose "/users" and return a list of Users
-    @GetMapping("/users")
-    public ResponseEntity<List<UserDto>> findAll() {
-        return ResponseEntity.ok(userService.findAll());
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<UserDto> findAll() {
+        return userService.findAll();
     }
 
-    // add mapping for GET /users/{userId}
-    @GetMapping("/users/{userId}")
-    public ResponseEntity<UserDto> getUser(@PathVariable UUID userId) {
-        UserDto user = userService.findById(userId);
-        if (user == null) {
-            throw new RuntimeException("User id not found - " + userId);
-        }
-        return ResponseEntity.ok(user);
+    @GetMapping("/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public UserDto getUser(@PathVariable UUID userId) {
+        return userService.findById(userId);
     }
 
-    // add mapping for POST /users - add new User
-    @PostMapping("/users")
-    public ResponseEntity<UserDto> addUser(@Valid @RequestBody UserCreateRequest request) {
-        UserDto created = userService.save(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserDto addUser(@Valid @RequestBody UserCreateRequest request) {
+        return userService.save(request);
     }
 
-    // PATCH
-    @PatchMapping("/users/{userId}")
-    public ResponseEntity<UserDto> patchUpdate(
+    @PatchMapping("/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public UserDto patchUpdate(
             @PathVariable UUID userId,
             @Valid @RequestBody UserUpdateRequest userUpdateRequest) {
-
-        UserDto updatedUser = userService.update(userId, userUpdateRequest);
-        return ResponseEntity.ok(updatedUser);
+        return userService.update(userId, userUpdateRequest);
     }
 
-    private User apply(Map<String, Object> patchPayload, User userToPatch) {
-        ObjectNode userNode = objectMapper.convertValue(userToPatch, ObjectNode.class);
-        ObjectNode patchNode = objectMapper.convertValue(patchPayload, ObjectNode.class);
-        userNode.setAll(patchNode);
-        return objectMapper.convertValue(userNode, User.class);
-    }
 
-    // add mapping for DELETE /users/{userId} - delete User
-    @DeleteMapping("/users/{userId}")
-    public String deleteUser(@PathVariable UUID userId) {
-        UserDto userToDelete = userService.findById(userId);
-        if (userToDelete == null) {
-            throw new RuntimeException("User id not found - " + userId);
-        }
+    @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable UUID userId) {
         userService.deleteById(userId);
-        return "Deleted User id - " + userId;
     }
 }
