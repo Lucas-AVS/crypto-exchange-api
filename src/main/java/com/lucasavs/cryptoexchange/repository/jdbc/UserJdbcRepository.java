@@ -10,10 +10,37 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 @Repository
-@Profile("jdbc") // só ativa este bean quando o profile 'jdbc' está ativo
+@Profile("jdbc")
 public class UserJdbcRepository implements UserRepository {
 
     private final JdbcTemplate template;
+
+    private static final String INSERT_USER_SQL = """
+        INSERT INTO users (email, password_hash)
+        VALUES (?, ?)
+        RETURNING id, email, password_hash, created_at
+    """;
+    private static final String UPDATE_USER_SQL = """
+        UPDATE users
+        SET email = COALESCE(?, email),
+            password_hash = COALESCE(?, password_hash)
+        WHERE id = ?
+        RETURNING id, email, password_hash, created_at
+    """;
+    private static final String SELECT_USER_BY_ID_SQL = """
+        SELECT id, email, password_hash, created_at
+        FROM users
+        WHERE id = ?
+    """;
+    private static final String SELECT_ALL_USERS_SQL = """
+        SELECT id, email, password_hash, created_at
+        FROM users
+    """;
+    private static final String DELETE_USER_BY_ID_SQL = """
+        DELETE
+        FROM users
+        WHERE id = ?
+    """;
 
     public UserJdbcRepository(JdbcTemplate template) {
         this.template = template;
@@ -21,27 +48,31 @@ public class UserJdbcRepository implements UserRepository {
 
     @Override
     public User save(User user) {
-        String sql = """
-            INSERT INTO users (email, password_hash)
-            VALUES (?, ?)
-            RETURNING id, email, password_hash, created_at
-        """;
-
-        return template.queryForObject(
-                sql,
-                userRowMapper(),
-                user.getEmail(),
-                user.getPasswordHash()
-        );
+        if (user.getId() == null) {
+            // INSERT
+            String sql = INSERT_USER_SQL;
+            return template.queryForObject(
+                    sql,
+                    userRowMapper(),
+                    user.getEmail(),
+                    user.getPasswordHash()
+            );
+        } else {
+            // UPDATE (keep values when null)
+            String sql = UPDATE_USER_SQL;
+            return template.queryForObject(
+                    sql,
+                    userRowMapper(),
+                    user.getEmail(),
+                    user.getPasswordHash(),
+                    user.getId()
+            );
+        }
     }
 
     @Override
     public Optional<User> findById(UUID id) {
-        String sql = """
-            SELECT id, email, password_hash, created_at
-            FROM users
-            WHERE id = ?
-        """;
+        String sql = SELECT_USER_BY_ID_SQL;
 
         List<User> list = template.query(sql, userRowMapper(), id);
         return list.stream().findFirst();
@@ -49,17 +80,14 @@ public class UserJdbcRepository implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        String sql = "SELECT id, email, password_hash, created_at FROM users";
+        String sql = SELECT_ALL_USERS_SQL;
         return template.query(sql, userRowMapper());
     }
 
     @Override
     public void deleteById(UUID theId) {
-        String sql = """
-            DELETE
-            FROM users
-            WHERE id = ?
-        """;
+        String sql = DELETE_USER_BY_ID_SQL;
+        template.update(sql, theId);
     }
 
     private RowMapper<User> userRowMapper() {
