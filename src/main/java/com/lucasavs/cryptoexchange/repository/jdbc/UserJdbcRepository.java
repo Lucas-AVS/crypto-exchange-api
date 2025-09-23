@@ -41,6 +41,16 @@ public class UserJdbcRepository implements UserRepository {
         FROM users
         WHERE id = ?
     """;
+    private static final String COUNT_USERS_BY_EMAIL = """
+        SELECT COUNT(*)
+        FROM users
+        WHERE email = ?
+    """;
+    private static final String COUNT_USERS_BY_ID = """
+        SELECT COUNT(*)
+        FROM users
+        WHERE id = ?
+    """;
 
     public UserJdbcRepository(JdbcTemplate template) {
         this.template = template;
@@ -50,9 +60,8 @@ public class UserJdbcRepository implements UserRepository {
     public User save(User user) {
         if (user.getId() == null) {
             // INSERT
-            String sql = INSERT_USER_SQL;
             return template.queryForObject(
-                    sql,
+                    INSERT_USER_SQL,
                     userRowMapper(),
                     user.getEmail(),
                     user.getPasswordHash()
@@ -79,15 +88,25 @@ public class UserJdbcRepository implements UserRepository {
     }
 
     @Override
+    public boolean existsByEmail(String email) {
+        Integer count = template.queryForObject(COUNT_USERS_BY_EMAIL, Integer.class, email);
+        return count != null && count > 0;
+    }
+
+    @Override
+    public boolean existsById(UUID id) {
+        Integer count = template.queryForObject(COUNT_USERS_BY_ID, Integer.class, id);
+        return count != null && count > 0;
+    }
+
+    @Override
     public List<User> findAll() {
-        String sql = SELECT_ALL_USERS_SQL;
-        return template.query(sql, userRowMapper());
+        return template.query(SELECT_ALL_USERS_SQL, userRowMapper());
     }
 
     @Override
     public void deleteById(UUID theId) {
-        String sql = DELETE_USER_BY_ID_SQL;
-        template.update(sql, theId);
+        template.update(DELETE_USER_BY_ID_SQL, theId);
     }
 
     private RowMapper<User> userRowMapper() {
