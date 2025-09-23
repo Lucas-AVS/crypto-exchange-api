@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 public class UserUpdateRequest {
 
     @Email(message = "invalid email")
-    @Size(max = 254, message = "email must have a maximum of 254 characters")
+    @Size(min = 5, max = 254, message = "email must be between 5 and 254 characters")
     private String email;
 
     // write-only
