@@ -1,20 +1,15 @@
 package com.lucasavs.cryptoexchange.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.lucasavs.cryptoexchange.dto.UserCreateRequest;
 import com.lucasavs.cryptoexchange.dto.UserDto;
 import com.lucasavs.cryptoexchange.dto.UserUpdateRequest;
-import com.lucasavs.cryptoexchange.entity.User;
 import com.lucasavs.cryptoexchange.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController

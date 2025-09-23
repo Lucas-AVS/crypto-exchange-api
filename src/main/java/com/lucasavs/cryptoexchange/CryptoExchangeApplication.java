@@ -17,17 +17,17 @@ public class CryptoExchangeApplication {
     @Bean
     CommandLineRunner demo(UserRepository repo) {
         return args -> {
-
-            User user = new User();
-            user.setEmail("sf4@example.com");
-            user.setPasswordHash("testtesttest1234");
-
-            User saved = repo.save(user);
-
-            System.out.println("Inserted: " + saved);
-
-            repo.findById(saved.getId())
-                    .ifPresent(u -> System.out.println("Found: " + u));
+//
+//            User user = new User();
+//            user.setEmail("sf4@example.com");
+//            user.setPasswordHash("testtesttest1234");
+//
+//            User saved = repo.save(user);
+//
+//            System.out.println("Inserted: " + saved);
+//
+//            repo.findById(saved.getId())
+//                    .ifPresent(u -> System.out.println("Found: " + u));
 
             repo.findAll().forEach(System.out::println);
         };
