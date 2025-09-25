@@ -12,10 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,38 +42,38 @@ public class UserControllerWebLayerTest {
     @DisplayName("User can be created when valid user details are provided")
     void testCreateUser_whenValidUserDetailsProvided_returnsUserDTO() throws Exception {
         // Arrange
-        String inputEmail = "test@test.com";
-        String inputPassword = "12345678";
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("email", inputEmail);
-        requestBody.put("password", inputPassword);
+        UserCreateRequest requestBody = new UserCreateRequest();
+        requestBody.setEmail("test@test.com");
+        requestBody.setPassword("aValidPassword123");
 
         UserDto userServiceResponse = new UserDto();
         userServiceResponse.setId(UUID.randomUUID());
-        userServiceResponse.setEmail(inputEmail);
+        userServiceResponse.setEmail(requestBody.getEmail());
 
+        // Mock the service layer
         when(userService.save(any(UserCreateRequest.class)))
                 .thenReturn(userServiceResponse);
 
         // Act
         ResultActions resultActions = mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestBody)));
+                .content(objectMapper.writeValueAsString(requestBody))); // Use the DTO directly
 
         // Assert
         resultActions
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.email").value(inputEmail));
+                .andExpect(jsonPath("$.email").value(requestBody.getEmail()))
+                .andExpect(jsonPath("$.password").doesNotExist()); // Important: verify password is not in the response
     }
 
     @Test
     @DisplayName("Should return 400 Bad Request when Email is empty")
     void createUser_whenEmailIsEmpty_returns400StatusCode() throws Exception {
         // Arrange
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("email", "");
-        requestBody.put("password", "aValidPassword123");
+        UserCreateRequest requestBody = new UserCreateRequest();
+        requestBody.setEmail("test@test.com");
+        requestBody.setPassword("aValidPassword123");
 
         // Act & Assert
         mockMvc.perform(post("/api/users")
