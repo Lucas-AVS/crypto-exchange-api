@@ -50,9 +50,8 @@ public class UserJdbcRepository implements UserRepository {
     public User save(User user) {
         if (user.getId() == null) {
             // INSERT
-            String sql = INSERT_USER_SQL;
             return template.queryForObject(
-                    sql,
+                    INSERT_USER_SQL,
                     userRowMapper(),
                     user.getEmail(),
                     user.getPasswordHash()
@@ -80,14 +79,12 @@ public class UserJdbcRepository implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        String sql = SELECT_ALL_USERS_SQL;
-        return template.query(sql, userRowMapper());
+        return template.query(SELECT_ALL_USERS_SQL, userRowMapper());
     }
 
     @Override
     public void deleteById(UUID theId) {
-        String sql = DELETE_USER_BY_ID_SQL;
-        template.update(sql, theId);
+        template.update(DELETE_USER_BY_ID_SQL, theId);
     }
 
     private RowMapper<User> userRowMapper() {

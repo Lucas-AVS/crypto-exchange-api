@@ -7,11 +7,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository {
-    <S extends User> S save(S user);
+    List<User> findAll();
 
     Optional<User> findById(UUID id);
 
-    List<User> findAll();
+    <S extends User> S save(S user);
 
     void deleteById(UUID theId);
 }
