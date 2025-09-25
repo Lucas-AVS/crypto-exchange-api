@@ -11,10 +11,6 @@ public interface UserRepository {
 
     Optional<User> findById(UUID id);
 
-    boolean existsByEmail(String email);
-
-    boolean existsById(UUID id);
-
     <S extends User> S save(S user);
 
     void deleteById(UUID theId);

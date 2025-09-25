@@ -41,16 +41,6 @@ public class UserJdbcRepository implements UserRepository {
         FROM users
         WHERE id = ?
     """;
-    private static final String COUNT_USERS_BY_EMAIL = """
-        SELECT COUNT(*)
-        FROM users
-        WHERE email = ?
-    """;
-    private static final String COUNT_USERS_BY_ID = """
-        SELECT COUNT(*)
-        FROM users
-        WHERE id = ?
-    """;
 
     public UserJdbcRepository(JdbcTemplate template) {
         this.template = template;
@@ -85,18 +75,6 @@ public class UserJdbcRepository implements UserRepository {
 
         List<User> list = template.query(sql, userRowMapper(), id);
         return list.stream().findFirst();
-    }
-
-    @Override
-    public boolean existsByEmail(String email) {
-        Integer count = template.queryForObject(COUNT_USERS_BY_EMAIL, Integer.class, email);
-        return count != null && count > 0;
-    }
-
-    @Override
-    public boolean existsById(UUID id) {
-        Integer count = template.queryForObject(COUNT_USERS_BY_ID, Integer.class, id);
-        return count != null && count > 0;
     }
 
     @Override

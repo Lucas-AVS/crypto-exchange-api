@@ -8,11 +8,11 @@ import com.lucasavs.cryptoexchange.exception.ResourceAlreadyExistException;
 import com.lucasavs.cryptoexchange.exception.ResourceNotFoundException;
 import com.lucasavs.cryptoexchange.mapper.UserMapper;
 import com.lucasavs.cryptoexchange.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,44 +47,44 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto save(UserCreateRequest req) {
-        if (userRepository.existsByEmail(req.getEmail())) {
-            throw new ResourceAlreadyExistException("User with email: '" + req.getEmail() + " already exists.");
-        }
         User toPersist = new User();
         toPersist.setEmail(req.getEmail());
-
         // Todo: add hashing
-
         toPersist.setPasswordHash(req.getPassword());
-        User persisted = userRepository.save(toPersist);
-        return userMapper.toDto(persisted);
+        try {
+            User persisted = userRepository.save(toPersist);
+            return userMapper.toDto(persisted);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResourceAlreadyExistException("User with email: '" + req.getEmail() + " already exists.");
+        }
     }
 
     @Override
     public UserDto update(UUID id, UserUpdateRequest req) {
         User userFromDb = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with ID " + id + " not found."));
-        if (userRepository.existsByEmail(req.getEmail()) && !userFromDb.getEmail().equals(req.getEmail())) {
-            throw new ResourceAlreadyExistException("User with email: '" + req.getEmail() + " already exists.");
-        }
-        else {
-            if (req.getEmail() != null) {
-                userFromDb.setEmail(req.getEmail());
-            }
-            if (req.getPassword() != null && !req.getPassword().isBlank()) {
-                userFromDb.setPasswordHash(req.getPassword());
-            }
 
+        if (req.getEmail() != null) {
+            userFromDb.setEmail(req.getEmail());
+        }
+        if (req.getPassword() != null && !req.getPassword().isBlank()) {
+            userFromDb.setPasswordHash(req.getPassword());
+        }
+
+        try {
             User saved = userRepository.save(userFromDb);
             return userMapper.toDto(saved);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResourceAlreadyExistException("User with email: '" + req.getEmail() + " already exists.");
         }
     }
 
     @Override
     public void deleteById(UUID id) {
-        if (!userRepository.existsById(id)) {
+        try {
+            userRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
             throw new ResourceNotFoundException("User with ID " + id + " not found.");
         }
-        userRepository.deleteById(id);
     }
 }
