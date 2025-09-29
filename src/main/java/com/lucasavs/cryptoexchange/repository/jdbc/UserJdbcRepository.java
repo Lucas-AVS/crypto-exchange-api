@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.*;
 
 @Repository
@@ -88,11 +89,14 @@ public class UserJdbcRepository implements UserRepository {
     }
 
     private RowMapper<User> userRowMapper() {
-        return (rs, rowNum) -> new User(
-                rs.getObject("id", UUID.class),
-                rs.getString("email"),
-                rs.getString("password_hash"),
-                rs.getTimestamp("created_at")
-        );
+        return (rs, rowNum) -> {
+            User user = new User();
+            user.setId(rs.getObject("id", UUID.class));
+            user.setEmail(rs.getString("email"));
+            user.setPasswordHash(rs.getString("password_hash"));
+            user.setCreatedAt(rs.getObject("created_at", Instant.class));
+
+            return user;
+        };
     }
 }
