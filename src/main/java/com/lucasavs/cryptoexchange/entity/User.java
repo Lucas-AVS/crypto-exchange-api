@@ -1,36 +1,28 @@
 package com.lucasavs.cryptoexchange.entity;
 
 import jakarta.persistence.*;
-import java.sql.Timestamp;
+import org.hibernate.annotations.Generated;
+
 import java.time.Instant;
 import java.util.UUID;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 @Entity
 @Table(name = "users")
 public class User {
 
     @Id
-    @GeneratedValue
-    @org.hibernate.annotations.UuidGenerator
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private UUID id;
 
-    @Column(name = "email", unique = true, nullable = false)
+    @Column(name = "email", unique = true, nullable = false, length = 254)
     private String email;
 
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
-    @Generated(GenerationTime.INSERT)
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Generated
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     // === constructors ===
@@ -39,15 +31,6 @@ public class User {
     public User(String email, String passwordHash) {
         this.email = email;
         this.passwordHash = passwordHash;
-    }
-    public User(UUID id, String email, String passwordHash, Instant createdAt) {
-        this.id = id;
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.createdAt = createdAt;
-    }
-    public User(UUID id, String email, String passwordHash, Timestamp createdAt) {
-        this(id, email, passwordHash, createdAt != null ? createdAt.toInstant() : null);
     }
 
     // === getters/setters ===
