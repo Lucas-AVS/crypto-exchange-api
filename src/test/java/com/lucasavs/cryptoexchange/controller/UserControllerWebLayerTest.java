@@ -5,7 +5,6 @@ import com.lucasavs.cryptoexchange.dto.UserCreateRequest;
 import com.lucasavs.cryptoexchange.dto.UserDto;
 import com.lucasavs.cryptoexchange.dto.UserUpdateRequest;
 import com.lucasavs.cryptoexchange.service.UserService;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -43,8 +42,7 @@ public class UserControllerWebLayerTest {
     // Create User Tests
 
     @Test
-    @DisplayName("Should create user when valid details are provided")
-    void createUser_withValidDetails_returnsCreatedUser() throws Exception {
+    void shouldCreateUserWhenDetailsAreValid() throws Exception {
         // Arrange
         UserCreateRequest requestBody = createValidUserCreateRequest();
         UserDto userServiceResponse = createUserServiceResponse(UUID.randomUUID(), requestBody.getEmail());
@@ -72,8 +70,7 @@ public class UserControllerWebLayerTest {
             "a@b, aValidPassword123, email must be between 5 and 254 characters",
             "test@test.com, 1234567, password must be between 8 and 72 characters long",
     })
-    @DisplayName("Should return 400 Bad Request for invalid user creation data")
-    void createUser_withInvalidData_returnsBadRequest(String email, String password, String expectedMessage) throws Exception {
+    void shouldReturnBadRequestWhenCreationDataIsInvalid(String email, String password, String expectedMessage) throws Exception {
         // Arrange
         UserCreateRequest requestBody = new UserCreateRequest();
         requestBody.setEmail(email);
@@ -90,8 +87,7 @@ public class UserControllerWebLayerTest {
     // Patch User Tests
 
     @Test
-    @DisplayName("Should patch user when valid details are provided")
-    void patchUser_withValidDetails_returnsUpdatedUser() throws Exception {
+    void shouldUpdateUserWhenDetailsAreValid() throws Exception {
         // Arrange
         UUID userId = UUID.randomUUID();
         UserUpdateRequest requestBody = new UserUpdateRequest();
@@ -120,8 +116,7 @@ public class UserControllerWebLayerTest {
             "a@b, aValidPassword123, email must be between 5 and 254 characters",
             "new.email@test.com, 1234567, password must be between 8 and 72 characters long"
     })
-    @DisplayName("Should return 400 Bad Request for invalid user patch data")
-    void patchUser_withInvalidData_returnsBadRequest(String email, String password, String expectedMessage) throws Exception {
+    void shouldReturnBadRequestWhenUpdateDataIsInvalid(String email, String password, String expectedMessage) throws Exception {
         // Arrange
         UUID userId = UUID.randomUUID();
         UserUpdateRequest requestBody = new UserUpdateRequest();

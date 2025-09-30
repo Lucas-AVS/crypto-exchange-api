@@ -4,7 +4,6 @@ import com.lucasavs.cryptoexchange.dto.UserCreateRequest;
 import com.lucasavs.cryptoexchange.dto.UserDto;
 import com.lucasavs.cryptoexchange.dto.UserUpdateRequest;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,9 +30,8 @@ public class UserIntegrationTest {
     private int localServerPort;
 
     @Test
-    @DisplayName("Should create, get, and update a user successfully")
     @Disabled("need test container")
-    void userLifecycle_shouldCreateGetAndUpdateUserSuccessfully() {
+    void shouldCreateGetAndUpdateUserSuccessfully() {
         // --- 1. CREATE the user ---
         String baseUrl = "http://localhost:" + localServerPort + "/api/users";
 
