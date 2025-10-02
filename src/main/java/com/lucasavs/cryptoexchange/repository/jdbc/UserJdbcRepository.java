@@ -33,6 +33,11 @@ public class UserJdbcRepository implements UserRepository {
         FROM users
         WHERE id = ?
     """;
+    private static final String SELECT_USER_BY_EMAIL_SQL = """
+        SELECT id, email, password_hash, created_at
+        FROM users
+        WHERE email = ?
+    """;
     private static final String SELECT_ALL_USERS_SQL = """
         SELECT id, email, password_hash, created_at
         FROM users
@@ -75,6 +80,14 @@ public class UserJdbcRepository implements UserRepository {
         String sql = SELECT_USER_BY_ID_SQL;
 
         List<User> list = template.query(sql, userRowMapper(), id);
+        return list.stream().findFirst();
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        String sql = SELECT_USER_BY_EMAIL_SQL;
+
+        List<User> list = template.query(sql, userRowMapper(), email);
         return list.stream().findFirst();
     }
 
