@@ -22,7 +22,7 @@ public class TokenService {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.create()
                     .withIssuer("auth-api")
-                    .withSubject(user.getId().toString()) // usa ID em vez do e-mail
+                    .withSubject(user.getId().toString())
                     .withExpiresAt(genExpirationDate())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
@@ -37,7 +37,7 @@ public class TokenService {
                     .withIssuer("auth-api")
                     .build()
                     .verify(token)
-                    .getSubject(); // agora retorna o ID
+                    .getSubject();
         } catch (JWTVerificationException exception){
             return "";
         }
