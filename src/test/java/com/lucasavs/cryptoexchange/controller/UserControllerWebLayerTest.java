@@ -3,7 +3,11 @@ package com.lucasavs.cryptoexchange.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucasavs.cryptoexchange.dto.UserCreateRequest;
 import com.lucasavs.cryptoexchange.dto.UserDto;
+import com.lucasavs.cryptoexchange.dto.UserLoginRequest;
 import com.lucasavs.cryptoexchange.dto.UserUpdateRequest;
+import com.lucasavs.cryptoexchange.repository.UserRepository;
+import com.lucasavs.cryptoexchange.security.SecurityConfiguration;
+import com.lucasavs.cryptoexchange.security.TokenService;
 import com.lucasavs.cryptoexchange.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -38,9 +43,12 @@ public class UserControllerWebLayerTest {
 
     @MockitoBean
     private UserService userService;
+    @MockitoBean
+    private TokenService tokenService;
+    @MockitoBean
+    private UserRepository userRepository;
 
     // Create User Tests
-
     @Test
     void shouldCreateUserWhenDetailsAreValid() throws Exception {
         // Arrange
@@ -50,7 +58,7 @@ public class UserControllerWebLayerTest {
         when(userService.save(any(UserCreateRequest.class))).thenReturn(userServiceResponse);
 
         // Act
-        ResultActions resultActions = mockMvc.perform(post("/api/users")
+        ResultActions resultActions = mockMvc.perform(post("/api/users/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestBody)));
 
@@ -77,7 +85,7 @@ public class UserControllerWebLayerTest {
         requestBody.setPassword(password);
 
         // Act & Assert
-        mockMvc.perform(post("/api/users")
+        mockMvc.perform(post("/api/users/save")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest())
@@ -125,6 +133,47 @@ public class UserControllerWebLayerTest {
 
         // Act & Assert
         mockMvc.perform(patch("/api/users/" + userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestBody)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(expectedMessage));
+    }
+
+    @Test
+    void shouldLoginUserWhenCredentialsAreValid() throws Exception {
+        // Arrange
+        UserLoginRequest requestBody = new UserLoginRequest();
+        requestBody.setEmail("test@test.com");
+        requestBody.setPassword("aValidPassword123");
+        String fakeToken = "jwt-token-example";
+
+        when(userService.login(any(UserLoginRequest.class))).thenReturn(fakeToken);
+
+        // Act
+        ResultActions resultActions = mockMvc.perform(post("/api/users/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)));
+
+        // Assert
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value(fakeToken));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "invalid-email, aValidPassword123, invalid email",
+            "a@b, aValidPassword123, email must be between 5 and 254 characters",
+            "new.email@test.com, 1234567, password must be between 8 and 72 characters long"
+    })
+    void shouldReturnBadRequestWhenLoginDataIsInvalid(String email, String password, String expectedMessage) throws Exception {
+        // Arrange
+        UserUpdateRequest requestBody = new UserUpdateRequest();
+        requestBody.setEmail(email);
+        requestBody.setPassword(password);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest())
