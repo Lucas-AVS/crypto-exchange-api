@@ -20,13 +20,13 @@ public class AssetJdbcRepository implements AssetRepository {
     }
 
     private static final String SELECT_ASSET_BY_SYMBOL_SQL = """
-        SELECT id, email, password_hash, created_at
-        FROM users
-        WHERE id = ?
+        SELECT symbol, kind, scale, name
+        FROM assets
+        WHERE symbol = ?
     """;
     private static final String SELECT_ALL_ASSETS_SQL = """
-        SELECT id, email, password_hash, created_at
-        FROM users
+        SELECT symbol, kind, scale, name
+        FROM assets
     """;
 
     @Override
