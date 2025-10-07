@@ -37,7 +37,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final TokenService tokenService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, @Lazy AuthenticationManager authenticationManager, TokenService tokenService) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder,
+                           @Lazy AuthenticationManager authenticationManager, TokenService tokenService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
@@ -61,16 +62,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDto save(UserCreateRequest req) {
-        userRepository.findByEmail(req.getEmail()).ifPresent(user -> {
-            throw new ResourceAlreadyExistException("User with email: '" + req.getEmail() + "' already exists.");
-        });
-
         User toPersist = new User();
         toPersist.setEmail(req.getEmail());
         toPersist.setPasswordHash(passwordEncoder.encode(req.getPassword()));
 
-        User persisted = userRepository.save(toPersist);
-        return userMapper.toDto(persisted);
+        try {
+            User persisted = userRepository.save(toPersist);
+            return userMapper.toDto(persisted);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResourceAlreadyExistException("User with email: '" + req.getEmail() + " already exists.");
+        }
     }
 
     @Override
