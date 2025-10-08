@@ -21,6 +21,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.function.Supplier;
+
 @Configuration
 @EnableWebSecurity
 @SecurityScheme(name = SecurityConfiguration.SECURITY, type = SecuritySchemeType.HTTP, bearerFormat = "JWT", scheme = "bearer")
@@ -55,17 +57,18 @@ public class SecurityConfiguration {
     }
 
     private AuthorizationManager<RequestAuthorizationContext> isOwner() {
-        return (authenticationSupplier, context) -> {
-            String userIdFromPath = context.getVariables().get("userId");
-            Authentication authentication = authenticationSupplier.get();
-
-            if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof User)) {
-                return new AuthorizationDecision(false);
+        return new AuthorizationManager<RequestAuthorizationContext>() {
+            @Override
+            public AuthorizationDecision check(Supplier<Authentication> authenticationSupplier, RequestAuthorizationContext context) {
+                String userIdFromPath = context.getVariables().get("userId");
+                Authentication authentication = authenticationSupplier.get();
+                if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof User)) {
+                    return new AuthorizationDecision(false);
+                }
+                User authenticatedUser = (User) authentication.getPrincipal();
+                boolean isOwner = authenticatedUser.getId().toString().equals(userIdFromPath);
+                return new AuthorizationDecision(isOwner);
             }
-
-            User authenticatedUser = (User) authentication.getPrincipal();
-            boolean isOwner = authenticatedUser.getId().toString().equals(userIdFromPath);
-            return new AuthorizationDecision(isOwner);
         };
     }
 
