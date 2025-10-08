@@ -23,7 +23,7 @@ public class UserJdbcRepository implements UserRepository {
     """;
     private static final String UPDATE_USER_SQL = """
         UPDATE users
-        SET email = COALESCE(?, email),
+        SET email = COALESCE(?, email)
             password_hash = COALESCE(?, password_hash)
         WHERE id = ?
         RETURNING id, email, password_hash, created_at
