@@ -177,7 +177,7 @@ class UserServiceTest {
     @DisplayName("Tests for save()")
     class SaveTests {
         @Test
-        void shouldSaveAndReturnUserDto() {
+        void shouldSaveAndReturnUserDtoWhenRequestIsValid() {
             // Arrange
             UserCreateRequest request = new UserCreateRequest();
             request.setEmail("test@email.com");
@@ -267,7 +267,7 @@ class UserServiceTest {
     @DisplayName("Tests for deleteById()")
     class DeleteByIdTests {
         @Test
-        void shouldCallRepositoryDeleteById() {
+        void shouldDeleteUserSuccessfullyWhenUserIdIsValid() {
             // This test ensures the service correctly delegates the delete call to the repository.
             // This is a critical interaction test to prevent the functionality from being silently broken.
 
