@@ -14,4 +14,6 @@ public interface UserRepository {
     <S extends User> S save(S user);
 
     void deleteById(UUID theId);
+
+    Optional<User> findByEmail(String email);
 }
