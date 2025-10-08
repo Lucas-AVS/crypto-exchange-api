@@ -2,13 +2,17 @@ package com.lucasavs.cryptoexchange.entity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.Generated;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -66,5 +70,21 @@ public class User {
                 ", email='" + email + '\'' +
                 ", createdAt=" + createdAt +
                 '}';
+    }
+
+    // === authentication ===
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public String getPassword() {
+        return passwordHash;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
     }
 }
