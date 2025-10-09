@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -32,8 +31,9 @@ public class SecurityFilter extends OncePerRequestFilter {
             if (userIdStr != null && !userIdStr.isBlank()) {
                 var user = userRepository.findById(UUID.fromString(userIdStr))
                         .orElseThrow(() -> new ResourceNotFoundException("User with ID " + userIdStr + " not found."));
+                CustomUserDetails customUserDetails = new CustomUserDetails(user);
+                var authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
 
-                var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
