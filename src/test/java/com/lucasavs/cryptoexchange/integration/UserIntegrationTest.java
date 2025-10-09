@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 // The H2 test database does not auto-generate the 'id' (UUID) and 'createdAt' (timestamp)
 // in the same way as the production PostgreSQL database, causing assertions to fail.
 // SOLUTION: This test must be run against a real PostgreSQL instance using Testcontainers.
+@Disabled("need test container")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserIntegrationTest {
 
@@ -30,7 +31,6 @@ public class UserIntegrationTest {
     private int localServerPort;
 
     @Test
-    @Disabled("need test container")
     void shouldCreateGetAndUpdateUserSuccessfully() {
         // --- 1. CREATE the user ---
         String baseUrl = "http://localhost:" + localServerPort + "/api/users";
