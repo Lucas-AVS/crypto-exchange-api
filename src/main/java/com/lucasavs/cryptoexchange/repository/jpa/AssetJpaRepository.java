@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-@Profile("jpa")
+@Profile({"jpa", "jpa-test"})
 public interface AssetJpaRepository extends JpaRepository<Asset, String>, AssetRepository {
     // custom query ex: Optional<User> findByEmail(String email);
 }

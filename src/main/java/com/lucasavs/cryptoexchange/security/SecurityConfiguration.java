@@ -1,6 +1,5 @@
 package com.lucasavs.cryptoexchange.security;
 
-import com.lucasavs.cryptoexchange.entity.User;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,10 +61,10 @@ public class SecurityConfiguration {
             public AuthorizationDecision check(Supplier<Authentication> authenticationSupplier, RequestAuthorizationContext context) {
                 String userIdFromPath = context.getVariables().get("userId");
                 Authentication authentication = authenticationSupplier.get();
-                if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof User)) {
+                if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof CustomUserDetails)) {
                     return new AuthorizationDecision(false);
                 }
-                User authenticatedUser = (User) authentication.getPrincipal();
+                CustomUserDetails authenticatedUser = (CustomUserDetails) authentication.getPrincipal();
                 boolean isOwner = authenticatedUser.getId().toString().equals(userIdFromPath);
                 return new AuthorizationDecision(isOwner);
             }
