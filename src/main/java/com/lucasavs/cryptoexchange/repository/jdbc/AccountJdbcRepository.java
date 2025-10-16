@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-@Profile({"jdbc", "jdbc-test"})
+@Profile("jdbc")
 public class AccountJdbcRepository implements AccountRepository {
     private static final String INSERT_ACCOUNT_SQL = """
             INSERT INTO accounts (user_id, asset_symbol, balance, version)

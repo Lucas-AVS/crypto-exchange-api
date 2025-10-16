@@ -11,7 +11,7 @@ import java.time.Instant;
 import java.util.*;
 
 @Repository
-@Profile({"jdbc", "jdbc-test"})
+@Profile("jdbc")
 public class UserJdbcRepository implements UserRepository {
 
     private final JdbcTemplate template;

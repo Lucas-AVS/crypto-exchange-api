@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-@Profile({"jpa", "jpa-test"})
+@Profile("jpa")
 public interface AccountJpaRepository extends JpaRepository<Account, UUID>, AccountRepository {
 }

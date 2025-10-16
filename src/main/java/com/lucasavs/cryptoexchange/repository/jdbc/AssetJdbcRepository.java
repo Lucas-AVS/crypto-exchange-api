@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-@Profile({"jdbc", "jdbc-test"})
+@Profile("jdbc")
 public class AssetJdbcRepository implements AssetRepository {
 
     private final JdbcTemplate template;
