@@ -3,11 +3,7 @@ package com.lucasavs.cryptoexchange.controller;
 import com.lucasavs.cryptoexchange.dto.AccountCreateRequest;
 import com.lucasavs.cryptoexchange.dto.AccountDto;
 import com.lucasavs.cryptoexchange.dto.AccountUpdateRequest;
-import com.lucasavs.cryptoexchange.security.CustomUserDetails;
-import com.lucasavs.cryptoexchange.security.SecurityConfiguration;
 import com.lucasavs.cryptoexchange.service.AccountService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/me/accounts")
+@RequestMapping("/wallet/me/accounts")
 public class AccountController {
 
     private final AccountService accountService;
@@ -29,44 +25,36 @@ public class AccountController {
     }
 
     @PostMapping
-    @Operation(security = @SecurityRequirement(name = SecurityConfiguration.SECURITY))
     @ResponseStatus(HttpStatus.CREATED)
     public AccountDto createAccount(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal String userId,
             @Valid @RequestBody AccountCreateRequest request) {
 
-        UUID userId = userDetails.getId();
-        return accountService.create(userId, request);
+        return accountService.create(UUID.fromString(userId), request);
     }
 
     @PatchMapping("/{assetSymbol}")
-    @Operation(security = @SecurityRequirement(name = SecurityConfiguration.SECURITY))
     @ResponseStatus(HttpStatus.OK)
     public AccountDto patchUpdateAccount(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal String userId,
             @PathVariable String assetSymbol,
             @Valid @RequestBody AccountUpdateRequest request) {
 
-        UUID userId = userDetails.getId();
-        return accountService.update(userId, assetSymbol, request);
+        return accountService.update(UUID.fromString(userId), assetSymbol, request);
     }
 
     @GetMapping
-    @Operation(security = @SecurityRequirement(name = SecurityConfiguration.SECURITY))
     @ResponseStatus(HttpStatus.OK)
-    public List<AccountDto> getMyAccounts(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        UUID userId = userDetails.getId();
-        return accountService.findByUserId(userId);
+    public List<AccountDto> getMyAccounts(@AuthenticationPrincipal String userId) {
+        return accountService.findByUserId(UUID.fromString(userId));
     }
 
     @GetMapping("/{assetSymbol}")
-    @Operation(security = @SecurityRequirement(name = SecurityConfiguration.SECURITY))
     @ResponseStatus(HttpStatus.OK)
     public AccountDto getMyAccountBySymbol(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal String userId,
             @PathVariable String assetSymbol) {
 
-        UUID userId = userDetails.getId();
-        return accountService.findByUserIdAndAssetSymbol(userId, assetSymbol);
+        return accountService.findByUserIdAndAssetSymbol(UUID.fromString(userId), assetSymbol);
     }
 }
