@@ -3,12 +3,13 @@ package com.lucasavs.cryptoexchange.dto;
 public class AssetDto {
     private String symbol;
     private String name;
-    private String type; // 'kind' renamed to 'type'
-    private int decimalPlaces; // 'scale' renamed to 'decimalPlaces'
+    private String kind;
+    private int scale;
 
     public String getSymbol() {
         return symbol;
     }
+
     public void setSymbol(String symbol) {
         this.symbol = symbol;
     }
@@ -16,21 +17,24 @@ public class AssetDto {
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getType() {
-        return type;
-    }
-    public void setType(String type) {
-        this.type = type;
+    public String getKind() {
+        return kind;
     }
 
-    public int getDecimalPlaces() {
-        return decimalPlaces;
+    public void setKind(String kind) {
+        this.kind = kind;
     }
-    public void setDecimalPlaces(int decimalPlaces) {
-        this.decimalPlaces = decimalPlaces;
+
+    public int getScale() {
+        return scale;
+    }
+
+    public void setScale(int scale) {
+        this.scale = scale;
     }
 }

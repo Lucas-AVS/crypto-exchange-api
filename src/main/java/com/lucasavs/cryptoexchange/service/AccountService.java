@@ -5,7 +5,6 @@ import com.lucasavs.cryptoexchange.dto.AccountDto;
 import com.lucasavs.cryptoexchange.dto.AccountUpdateRequest;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface AccountService {

@@ -10,7 +10,7 @@ public class AccountMapper {
         AccountDto dto = new AccountDto();
         dto.setId(account.getId());
         dto.setUserId((account.getUser().getId()));
-        dto.setAssetSymbol(account.getAsset().getSymbol());
+        dto.setAssetSymbol(account.getAssetSymbol());
         dto.setBalance(account.getBalance());
         return dto;
     }

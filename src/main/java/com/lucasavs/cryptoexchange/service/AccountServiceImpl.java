@@ -1,16 +1,16 @@
 package com.lucasavs.cryptoexchange.service;
 
+import com.lucasavs.cryptoexchange.client.AssetServiceClient;
 import com.lucasavs.cryptoexchange.dto.AccountCreateRequest;
 import com.lucasavs.cryptoexchange.dto.AccountDto;
 import com.lucasavs.cryptoexchange.dto.AccountUpdateRequest;
+import com.lucasavs.cryptoexchange.dto.AssetDto;
 import com.lucasavs.cryptoexchange.entity.Account;
-import com.lucasavs.cryptoexchange.entity.Asset;
 import com.lucasavs.cryptoexchange.entity.User;
 import com.lucasavs.cryptoexchange.exception.ResourceAlreadyExistException;
 import com.lucasavs.cryptoexchange.exception.ResourceNotFoundException;
 import com.lucasavs.cryptoexchange.mapper.AccountMapper;
 import com.lucasavs.cryptoexchange.repository.AccountRepository;
-import com.lucasavs.cryptoexchange.repository.AssetRepository;
 import com.lucasavs.cryptoexchange.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,15 +28,15 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
-    private final AssetRepository assetRepository;
+    private final AssetServiceClient assetServiceClient;
     private final AccountMapper accountMapper;
 
     @Autowired
     public AccountServiceImpl(AccountRepository accountRepository, UserRepository userRepository,
-                              AssetRepository assetRepository, AccountMapper accountMapper) {
+                              AssetServiceClient assetServiceClient, AccountMapper accountMapper) {
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
-        this.assetRepository = assetRepository;
+        this.assetServiceClient = assetServiceClient;
         this.accountMapper = accountMapper;
     }
 
@@ -46,10 +46,10 @@ public class AccountServiceImpl implements AccountService {
         User user = userRepository.findById(authenticatedUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found."));
 
-        Asset asset = assetRepository.findBySymbol(request.getAssetSymbol())
+        AssetDto asset = assetServiceClient.findAssetBySymbol(request.getAssetSymbol())
                 .orElseThrow(() -> new ResourceNotFoundException("Asset with symbol " + request.getAssetSymbol() + " not found."));
 
-        Account newAccount = new Account(user, asset);
+        Account newAccount = new Account(user, asset.getSymbol());
 
         try {
             Account savedAccount = accountRepository.save(newAccount);

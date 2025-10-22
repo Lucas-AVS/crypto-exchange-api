@@ -1,7 +1,6 @@
 package com.lucasavs.cryptoexchange.repository.jdbc;
 
 import com.lucasavs.cryptoexchange.entity.Account;
-import com.lucasavs.cryptoexchange.entity.Asset;
 import com.lucasavs.cryptoexchange.entity.User;
 import com.lucasavs.cryptoexchange.repository.AccountRepository;
 import org.springframework.context.annotation.Profile;
@@ -53,7 +52,7 @@ public class AccountJdbcRepository implements AccountRepository {
                     INSERT_ACCOUNT_SQL,
                     accountRowMapper(),
                     account.getUser().getId(),
-                    account.getAsset().getSymbol()
+                    account.getAssetSymbol()
             );
         } else {
             // UPDATE (keep values when null)
@@ -76,7 +75,7 @@ public class AccountJdbcRepository implements AccountRepository {
 
     @Override
     public List<Account> findByUserId(UUID userId) {
-        return template.query(SELECT_ALL_ACCOUNTS_BY_USER_ID_SQL, accountRowMapper());
+        return template.query(SELECT_ALL_ACCOUNTS_BY_USER_ID_SQL, accountRowMapper(), userId);
     }
 
 
@@ -88,9 +87,7 @@ public class AccountJdbcRepository implements AccountRepository {
             User user = new User();
             user.setId(rs.getObject("user_id", UUID.class));
             account.setUser(user);
-            Asset asset = new Asset();
-            asset.setSymbol(rs.getString("asset_symbol"));
-            account.setAsset(asset);
+            account.setAssetSymbol(rs.getObject("asset_symbol", String.class));
 
             account.setBalance(rs.getBigDecimal("balance"));
             account.setVersion(rs.getLong("version"));

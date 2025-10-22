@@ -23,6 +23,9 @@ public class Account {
     @Column(name = "version", nullable = false)
     private Long version;
 
+    @Column(name = "asset_symbol", nullable = false)
+    private String assetSymbol;
+
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
@@ -31,15 +34,11 @@ public class Account {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "asset_symbol", nullable = false)
-    private Asset asset;
-
     public Account() {
     }
-    public Account(User user, Asset assetSymbol) {
+    public Account(User user, String assetSymbol) {
         this.user = user;
-        this.asset = assetSymbol;
+        this.assetSymbol = assetSymbol;
         this.balance = BigDecimal.ZERO;
     }
 
@@ -53,8 +52,8 @@ public class Account {
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
-    public Asset getAsset() { return asset; }
-    public void setAsset(Asset assetSymbol) { this.asset = assetSymbol; }
+    public String getAssetSymbol() { return assetSymbol; }
+    public void setAssetSymbol(String assetSymbol) { this.assetSymbol = assetSymbol; }
 
     @Override
     public String toString() {
@@ -64,7 +63,7 @@ public class Account {
                 ", version=" + version +
                 ", updatedAt=" + updatedAt +
                 ", user=" + user +
-                ", asset=" + asset +
+                ", asset=" + assetSymbol +
                 '}';
     }
 }
