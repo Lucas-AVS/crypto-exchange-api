@@ -56,7 +56,7 @@ public class UserControllerWebLayerTest {
         when(userService.save(any(UserCreateRequest.class))).thenReturn(userServiceResponse);
 
         // Act
-        ResultActions resultActions = mockMvc.perform(post("/api/users/save")
+        ResultActions resultActions = mockMvc.perform(post("/wallet/auth/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestBody)));
 
@@ -83,7 +83,7 @@ public class UserControllerWebLayerTest {
         requestBody.setPassword(password);
 
         // Act & Assert
-        mockMvc.perform(post("/api/users/save")
+        mockMvc.perform(post("/wallet/auth/save")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest())
@@ -104,7 +104,7 @@ public class UserControllerWebLayerTest {
         when(userService.update(any(UUID.class), any(UserUpdateRequest.class))).thenReturn(userServiceResponse);
 
         // Act
-        ResultActions resultActions = mockMvc.perform(patch("/api/users/" + userId)
+        ResultActions resultActions = mockMvc.perform(patch("/wallet/users/" + userId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestBody)));
 
@@ -130,7 +130,7 @@ public class UserControllerWebLayerTest {
         requestBody.setPassword(password);
 
         // Act & Assert
-        mockMvc.perform(patch("/api/users/" + userId)
+        mockMvc.perform(patch("/wallet/users/" + userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest())
@@ -148,7 +148,7 @@ public class UserControllerWebLayerTest {
         when(userService.login(any(UserLoginRequest.class))).thenReturn(fakeToken);
 
         // Act
-        ResultActions resultActions = mockMvc.perform(post("/api/users/login")
+        ResultActions resultActions = mockMvc.perform(post("/wallet/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestBody)));
 
@@ -171,7 +171,7 @@ public class UserControllerWebLayerTest {
         requestBody.setPassword(password);
 
         // Act & Assert
-        mockMvc.perform(post("/api/users/login")
+        mockMvc.perform(post("/wallet/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest())
