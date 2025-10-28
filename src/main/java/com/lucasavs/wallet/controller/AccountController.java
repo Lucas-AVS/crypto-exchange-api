@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/wallet/me/accounts")
+@RequestMapping("/api/v1/me/accounts")
 public class AccountController {
 
     private final AccountService accountService;

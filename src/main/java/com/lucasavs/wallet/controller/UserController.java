@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/wallet")
+@RequestMapping("/api/v1")
 public class UserController {
 
     private final UserService userService;

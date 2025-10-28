@@ -23,9 +23,11 @@ public class SecurityConfiguration {
     private HeaderAuthenticationFilter headerAuthenticationFilter;
 
     private static final String[] AUTH_WHITE_LIST = {
-            "/wallet/v3/api-docs/**",
-            "/wallet/swagger-ui/**",
-            "/wallet/swagger-ui.html"
+            "/api/v1/auth/**",
+
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
     };
 
     @Bean
@@ -39,7 +41,6 @@ public class SecurityConfiguration {
 
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(AUTH_WHITE_LIST).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/wallet/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(headerAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
