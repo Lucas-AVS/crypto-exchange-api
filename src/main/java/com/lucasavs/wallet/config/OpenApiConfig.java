@@ -16,7 +16,7 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         Server gatewayServer = new Server()
-                .url("http://localhost:9000") // api gateway URL
+                .url("http://localhost:8080/wallet") // api gateway URL
                 .description("API Gateway");
 
         SecurityScheme securityScheme = new SecurityScheme()
