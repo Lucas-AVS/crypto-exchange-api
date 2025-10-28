@@ -1,0 +1,40 @@
+services:
+  wallet-service:
+    build: .
+    container_name: wallet-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SERVER_PORT=8081
+      - DB_HOST=${DB_HOST_DOCKER}
+      - DB_PORT=${DB_PORT_DOCKER}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+#      - ASSETS_ENDPOINT_URL=http://market-data-service:8082/
+      - ASSETS_ENDPOINT_URL=http://host.docker.internal:8082/
+    networks:
+      - exchange-net
+    depends_on:
+      - wallet-db
+
+  wallet-db:
+    image: postgres:15
+    container_name: wallet-db
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "5432:5432"
+    networks:
+      - exchange-net
+    volumes:
+      - wallet-db-data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  wallet-db-data:
+
+networks:
+  exchange-net:
+    external: true
