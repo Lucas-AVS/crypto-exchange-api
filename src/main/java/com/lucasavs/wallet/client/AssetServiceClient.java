@@ -11,7 +11,7 @@ import java.util.Optional;
 @Service
 public class AssetServiceClient {
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final String assetServiceUrl;
 
     public AssetServiceClient(RestTemplate restTemplate, @Value("${endpoint.assets}") String assetServiceUrl) {
