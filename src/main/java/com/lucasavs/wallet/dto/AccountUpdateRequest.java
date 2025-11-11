@@ -2,11 +2,13 @@ package com.lucasavs.wallet.dto;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
 import java.math.BigDecimal;
 
 public class AccountUpdateRequest {
     @NotNull
-    @DecimalMin("0.0")
+    @Positive(message = "balance must be positive")
     private BigDecimal balance;
 
     // Getters and Setters
