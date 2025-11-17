@@ -1,6 +1,8 @@
 package com.lucasavs.wallet.service;
 
-import com.lucasavs.wallet.event.OrderPlacedEvent;
+import com.lucasavs.wallet.event.OrderMatchedEvent;
+import com.lucasavs.wallet.event.TransactionFailedEvent;
+import com.lucasavs.wallet.event.TransactionSucceededEvent;
 import com.lucasavs.wallet.exception.InsufficientFundsException;
 import com.lucasavs.wallet.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
@@ -18,75 +20,81 @@ public class KafkaConsumerService {
 
     private static final Logger log = LoggerFactory.getLogger(KafkaConsumerService.class);
 
-    // Topics
-    private static final String TOPIC_ORDER_PLACED = "order.placed";
+    private static final String TOPIC_ORDER_MATCHED = "order.matched";
     private static final String TOPIC_TRANSACTION_SUCCEEDED = "transaction.succeeded";
     private static final String TOPIC_TRANSACTION_FAILED = "transaction.failed";
 
     private final AccountService accountService;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Autowired
-    public KafkaConsumerService(AccountService accountService, KafkaTemplate<String, String> kafkaTemplate) {
+    public KafkaConsumerService(AccountService accountService, KafkaTemplate<String, Object> kafkaTemplate) {
         this.accountService = accountService;
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    @KafkaListener(topics = TOPIC_ORDER_PLACED, groupId = "wallet-consumers")
-    @Transactional
-    public void handleOrderPlaced(OrderPlacedEvent event) {
-        log.info("Received order.placed event for orderId: {}", event.getOrderId());
+    @KafkaListener(topics = TOPIC_ORDER_MATCHED, groupId = "wallet-consumers")
+    public void handleOrderMatched(OrderMatchedEvent event) {
+        //TODO: Add IDEMPOTENCE logic to cover duplicated order.matched event
+
+        log.info("Received order.matched event for orderId: {}", event.orderId());
 
         try {
-            if (event.getSide().equals("BUY")) {
+            if (event.side().equals("BUY")) {
                 processBuyTransaction(event);
             } else {
                 processSellTransaction(event);
             }
 
             // SUCCEEDED
-            log.info("Transaction SUCCEEDED for orderId: {}", event.getOrderId());
-            kafkaTemplate.send(TOPIC_TRANSACTION_SUCCEEDED, event.getOrderId().toString());
+            log.info("Transaction SUCCEEDED for orderId: {}", event.orderId());
+            TransactionSucceededEvent successEvent = new TransactionSucceededEvent(event.orderId(), event.executedPrice());
+            kafkaTemplate.send(TOPIC_TRANSACTION_SUCCEEDED, successEvent);
 
         } catch (InsufficientFundsException | ResourceNotFoundException e) {
             // FAILED
-            log.warn("Transaction FAILED for orderId: {}. Reason: {}", event.getOrderId(), e.getMessage());
-            kafkaTemplate.send(TOPIC_TRANSACTION_FAILED, event.getOrderId().toString());
+            log.warn("Transaction FAILED for orderId: {}. Reason: {}", event.orderId(), e.getMessage());
+            TransactionFailedEvent failedEvent = new TransactionFailedEvent(event.orderId(), e.getMessage());
+            kafkaTemplate.send(TOPIC_TRANSACTION_FAILED, failedEvent);
         } catch (Exception e) {
-            log.error("CRITICAL: Unexpected error processing orderId: {}", event.getOrderId(), e);
-            kafkaTemplate.send(TOPIC_TRANSACTION_FAILED, event.getOrderId().toString());
+            log.error("CRITICAL: Unexpected error processing orderId: {}", event.orderId(), e);
+            TransactionFailedEvent failedEvent = new TransactionFailedEvent(event.orderId(), e.getMessage());
+            kafkaTemplate.send(TOPIC_TRANSACTION_FAILED, failedEvent);
+            throw e;
         }
     }
 
-    private void processBuyTransaction(OrderPlacedEvent event) {
-        BigDecimal totalCost = event.getAmountBase().multiply(event.getTargetPrice());
+    @Transactional
+    private void processBuyTransaction(OrderMatchedEvent event) {
+        BigDecimal totalCost = event.amountBase().multiply(event.executedPrice());
         // QUOTE
         accountService.updateBalance(
-                event.getUserId(),
-                event.getQuoteAssetSymbol(),
+                event.userId(),
+                event.quoteAssetSymbol(),
                 totalCost.negate()
         );
         // BASE
         accountService.updateBalance(
-                event.getUserId(),
-                event.getBaseAssetSymbol(),
-                event.getAmountBase()
+                event.userId(),
+                event.baseAssetSymbol(),
+                event.amountBase()
         );
     }
 
-    private void processSellTransaction(OrderPlacedEvent event) {
-        BigDecimal totalRevenue = event.getAmountBase().multiply(event.getTargetPrice());
+    @Transactional
+    private void processSellTransaction(OrderMatchedEvent event) {
+        BigDecimal totalRevenue = event.amountBase().multiply(event.executedPrice());
         // BASE
         accountService.updateBalance(
-                event.getUserId(),
-                event.getBaseAssetSymbol(),
-                event.getAmountBase().negate()
+                event.userId(),
+                event.baseAssetSymbol(),
+                event.amountBase().negate()
         );
 
         // QUOTE
         accountService.updateBalance(
-                event.getUserId(),
-                event.getQuoteAssetSymbol(),
+                event.userId(),
+                event.quoteAssetSymbol(),
                 totalRevenue
         );
     }
